@@ -3,10 +3,17 @@ const app = express();
 const port = 3000;
 const https = require("node:https");
 
-app.get("/", (req, res) => {
-  const url =
-    "https://api.openweathermap.org/data/2.5/weather?q=London&appid=b00de0214f05687be0f5ca36e0181506&units=metric";
+app.use(express.urlencoded({ extended: true }));
 
+app.get("/", (req, res) => {
+  res.sendFile(`${__dirname}/index.html`);
+});
+
+app.post("/", function (req, res) {
+  var query = req.body.cityName;
+  const APIkey = "b00de0214f05687be0f5ca36e0181506";
+  const unit = "metric";
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${query}&appid=${APIkey}&units=${unit}`;
   https.get(url, (response) => {
     response.on("data", (data) => {
       const weatherData = JSON.parse(data);
@@ -19,8 +26,8 @@ app.get("/", (req, res) => {
       //   res.send(
       //     `<h1>The weather in London is ${weatherDescription} and its ${temp} in temperatures.</h1>`
       //   );
-      res.write(`<h1>The weather in London is ${weatherDescription}</h1>`);
-      res.write(`<h2>the temperature is ${temp}</h2>`);
+      res.write(`<h1>The weather in ${query} is ${weatherDescription}</h1>`);
+      res.write(`<h2>The temperature is ${temp}</h2>`);
       //! double quotes are very important when mentioning src
       res.write(`<img src="${imageURL}"/>`);
       res.send();
